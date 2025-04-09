@@ -64,7 +64,7 @@ class EarthMascot {
     const loader = new GLTFLoader()
 
     loader.load(
-      "mascot-wp6YU8FSS68ufGO7vLFCX1QvQY3gzO.glb",
+      "mascot.glb",
       (gltf) => {
         this.model = gltf.scene
         this.scene.add(this.model)
