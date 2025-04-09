@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liquid Galaxy Voice Assistant</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Main Screen -->
+    <div class="main-screen">
+      <!-- Connection Status -->
+      <div class="connection-status">
+        <div class="status-dot disconnected"></div>
+        <span class="status-text">Disconnected</span>
+      </div>
+
+      <!-- Settings Button -->
+      <div class="settings-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </div>
+
+      <!-- 3D Earth Mascot Container -->
+      <div class="mascot-container">
+        <div id="earth-mascot"></div>
+        <div class="listening-indicator hidden">Listening...</div>
+      </div>
+
+      <!-- Voice Activation Button -->
+      <div class="voice-controls">
+        <button class="voice-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" y1="19" x2="12" y2="23"></line>
+            <line x1="8" y1="23" x2="16" y2="23"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Transcript and Response -->
+      <div class="transcript-container hidden">
+        <div class="transcript-box">
+          <p id="transcript-text"></p>
+        </div>
+      </div>
+
+      <div class="response-container hidden">
+        <div class="response-box">
+          <p id="response-text"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="settings-modal hidden">
+      <div class="settings-content">
+        <div class="settings-header">
+          <h2>Settings</h2>
+          <button class="close-button">×</button>
+        </div>
+
+        <div class="settings-body">
+          <h3>Liquid Galaxy Connection</h3>
+          
+          <div class="qr-section">
+            <button class="qr-button">Scan QR Code</button>
+            <div class="qr-scanner-container hidden">
+              <video id="qr-video"></video>
+              <div class="qr-overlay">
+                <div class="qr-frame"></div>
+              </div>
+              <button class="cancel-scan-button">Cancel</button>
+            </div>
+          </div>
+
+          <div class="manual-input-section">
+            <p class="section-label">Or enter details manually:</p>
+            <div class="input-group">
+              <label for="ip-address">Master IP Address</label>
+              <input type="text" id="ip-address" placeholder="192.168.1.42">
+            </div>
+            <div class="input-group">
+              <label for="username">Username</label>
+              <input type="text" id="username" placeholder="lg">
+            </div>
+            <div class="input-group">
+              <label for="password">Password</label>
+              <input type="password" id="password" placeholder="••••••••">
+            </div>
+          </div>
+
+          <h3>API Configuration</h3>
+          <div class="input-group">
+            <label for="api-key">LLM API Key</label>
+            <input type="password" id="api-key" placeholder="Enter your API key">
+          </div>
+
+          <button class="save-button">Save Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/earth-mascot.js"></script>
+  <script src="js/speech-recognition.js"></script>
+  <script src="js/llm-service.js"></script>
+  <script src="js/lg-service.js"></script>
+  <script src="js/qr-scanner.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
